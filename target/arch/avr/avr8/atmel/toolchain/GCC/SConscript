@@ -11,7 +11,7 @@ toolchain = {
 	'CPPDEFINES' : [
 		],
 	'CFLAGS' :  [
-		'-O2', 
+		'-O0', 
 		'-Wall',
 		'-fno-strict-aliasing',
 		'-Werror-implicit-function-declaration',
@@ -19,7 +19,7 @@ toolchain = {
 		'-fdata-sections',
 		'-std=c99',
 		'-g2',
-		'-gstabs',
+		'-gdwarf-2',
 		],
 	'LINKFLAGS' : [
 		'-Wl,-Map=${TARGET.base}.map,--gc-section',

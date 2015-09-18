@@ -36,6 +36,10 @@ TARGETS = [
 
 ['sn_atany900basic', [('sniffer','')],               'atany900_basic',      '0xFEFE',      '-11',         '-100',       'MODULATION_QPSK100'],
 
+['usn_atany900basic', [('usniffer','')],             'atany900',            '0xFEFE',      '-11',         '-100',       'MODULATION_QPSK100'],
+
+['jp_atany900',       [('justprint','')],            'atany900',            '0xFEFE',      '-11',         '-100',       'MODULATION_QPSK100'],
+
 ['cs_xpro_212',      [('coap','server'),
                       ('udp_alive','')],             'samd20xpro_rf212',    '0x20B0',      '11',          '-100',       'MODULATION_QPSK100'],
 ['cs_xpro_212b',     [('coap','server'),
