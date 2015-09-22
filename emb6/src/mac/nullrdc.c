@@ -195,5 +195,6 @@ const s_nsLowMac_t nullrdc_driver = {
   on,
   off,
   channel_check_interval,
+  NULL
 };
 /*---------------------------------------------------------------------------*/

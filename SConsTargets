@@ -8,8 +8,7 @@ TARGETS = [
 ['cc_atany900',      [('coap','client'),
                       ('udp_alive','')],             'atany900',            '0x11A1',      '4',           '-100',       'MODULATION_QPSK100'],
                       
-['cs_atany900',      [('coap','server'),
-                      ('udp_alive','')],             'atany900',            '0x8888',      '4',           '-100',       'MODULATION_QPSK100'],
+['cs_atany900',      [('udp_alive','')],             'atany900',            '0x8888',      '4',           '-100',       'MODULATION_BPSK20'],
 
 ['mq_atany900',      [('mqtt',''),
                       ('udp_alive','')],             'atany900',            '0x12B2',      '4',           '-100',       'MODULATION_QPSK100'],
@@ -18,7 +17,7 @@ TARGETS = [
 ['ua_atany900',      [('udp_alive','')],             'atany900',            '0x13A3',      '4',           '-100',       'MODULATION_QPSK100'],
 
 # External Interface
-['if_atany900',      [('extif','')],                 'atany900',            '0xFFFF',      '-11',         '-80',        'MODULATION_QPSK100'],
+['if_atany900',      [('extif','')],                 'atany900',            '0xFFFF',      '0',         '-90',        'MODULATION_BPSK20'],
 
 ['cs_atany900pro3',  [('coap','server'),
                       ('udp_alive','')],             'atany900_pro3',       '0x15A5',      '-11',         '-100',       'MODULATION_QPSK100'],
@@ -36,7 +35,7 @@ TARGETS = [
 
 ['sn_atany900basic', [('sniffer','')],               'atany900_basic',      '0xFEFE',      '-11',         '-100',       'MODULATION_QPSK100'],
 
-['usn_atany900basic', [('usniffer','')],             'atany900',            '0xFEFE',      '-11',         '-100',       'MODULATION_QPSK100'],
+['usn_atany900basic', [('usniffer','')],             'atany900',            '0xFEFE',      '-11',         '-100',       'MODULATION_BPSK20'],
 
 ['jp_atany900',       [('justprint','')],            'atany900',            '0xFEFE',      '-11',         '-100',       'MODULATION_QPSK100'],
 

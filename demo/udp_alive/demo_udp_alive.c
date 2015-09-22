@@ -77,7 +77,7 @@
 #include    "logger.h"
 
 /** set the send interval */
-#define     SEND_INTERVAL               60
+#define     SEND_INTERVAL               5
 
 /** set the payload length */
 #define     MAX_PAYLOAD_LEN             40

@@ -278,6 +278,7 @@ s_nsLowMac_t sicslowmac_driver = {
   input_packet,
   on,
   off,
-  channel_check_interval
+  channel_check_interval,
+  NULL
 };
 /*---------------------------------------------------------------------------*/
