@@ -53,6 +53,13 @@ emb6 = {
         'mac/linkaddr',
         'mac/rimestats',
 	],
+	'sniffer'	: [
+		'mac/linkaddr',
+		'mac/no-framer',
+		'mac/sniffer',
+		'mac/framer',
+		'mac/frame802154',
+	],
 # C global defines
 	'defines' : [
 	],

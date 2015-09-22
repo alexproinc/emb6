@@ -261,6 +261,8 @@ typedef const struct netstack_headerCompression {
 }s_nsHeadComp_t;
 
 typedef void (* mac_callback_t)(void *ptr, int status, int transmissions);
+typedef void (* sniff_callback_t)(const uint8_t* pc_data, uint8_t c_len,
+                                  int8_t status);
 
 /**
  * The structure of a link layer security driver.
@@ -344,6 +346,10 @@ typedef const struct netstack_lowMac {
 
     /** Returns the channel check interval, expressed in clock_time_t ticks. */
     unsigned short (* channel_check_interval)(void);
+
+    /** Register sniffer callback function */
+    int8_t (* regcallb)(sniff_callback_t f_sniffCallb);
+
 }s_nsLowMac_t;
 
 typedef const struct netstack_framer {
@@ -398,6 +404,9 @@ typedef const struct netstack_interface {
     /** Set promiscuous mode */
     void (* set_promisc)(uint8_t c_on_off);
 
+    /** Set promiscuous mode */
+    void (* set_channel)(uint8_t c);
+
 }s_nsIf_t;
 
 /*! Supported BSD-like socket interface */
@@ -422,6 +431,7 @@ extern const s_nsHighMac_t      nullmac_driver;
 /*! Supported low mac handlers */
 extern const s_nsLowMac_t       sicslowmac_driver;
 extern const s_nsLowMac_t       nullrdc_driver;
+extern const s_nsLowMac_t       sniffer_driver;
 
 
 /*! Supported framers */

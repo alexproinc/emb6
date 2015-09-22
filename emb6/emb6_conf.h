@@ -816,25 +816,25 @@ void uip_log(char *msg);
  #define LOGGER_BSP                             FALSE
 
  /** Main functions                             (see emb6_main.c) */
- #define LOGGER_MAIN                            TRUE
+ #define LOGGER_MAIN                            FALSE
 
  /** Radio functions                            (see $(IF).c) */
  #define LOGGER_RADIO                           FALSE
 
  /** DEMO UDP example                           (see demo_exudp.c) */
- #define LOGGER_DEMO_UDPIAA                     TRUE
+ #define LOGGER_DEMO_UDPIAA                     FALSE
 
  /** DEMO APTB example                           (see demo_aptb_xxx.c) */
- #define LOGGER_DEMO_APTB                       TRUE
+ #define LOGGER_DEMO_APTB                       FALSE
 
  /** DEMO COAP example                           (see demo_coap_*.c) */
- #define LOGGER_DEMO_COAP                       TRUE
+ #define LOGGER_DEMO_COAP                       FALSE
 
  /** DEMO SNIFFER                               (see demo_sniffer.c) */
  #define LOGGER_DEMO_SNIFFER                    FALSE
 
  /** DEMO TESTSUITE                             (see tessuite.c) */
-  #define LOGGER_DEMO_TESTSUITE                 TRUE
+  #define LOGGER_DEMO_TESTSUITE                 FALSE
 
  /** Event timer functions                      (see etimer.c) */
  #define LOGGER_ETIMER                          FALSE
