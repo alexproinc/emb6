@@ -60,7 +60,7 @@
  INCLUDE FILES
  =============================================================================*/
 #include "demo_justprint.h"
-
+#include "const.h"
 
 #define     LOGGER_ENABLE        FALSE
 #include    "logger.h"
@@ -82,24 +82,9 @@ int8_t demo_justprintInit(void)
 
     LOG_INFO("Starting Sniffer");
 
-    printf("printf test\n");
+    //etimer_set(&print_et, 1 * bsp_get(E_BSP_GET_TRES), demo_print_et_callback);
 
-    putchar('p');
-    putchar('u');
-    putchar('t');
-    putchar('c');
-    putchar('h');
-    putchar('a');
-    putchar('r');
-    putchar(' ');
-    putchar('t');
-    putchar('e');
-    putchar('s');
-    putchar('t');
-    putchar('\n');
-
-    etimer_set(&print_et, 1 * bsp_get(E_BSP_GET_TRES), demo_print_et_callback);
-
+    bsp_extIntInit(E_TARGET_USART_INT,justprint_input_byte);
 
     return 1;
 } /* demo_justprintInit() */
@@ -150,28 +135,27 @@ void demo_print_et_callback(c_event_t c_event, p_data_t p_data)
 {
     if (etimer_expired(&print_et))
     {
-        
-        printf("printf test\n");
+        char c;
 
-        putchar('p');
-        putchar('u');
-        putchar('t');
-        putchar('c');
-        putchar('h');
-        putchar('a');
-        putchar('r');
-        putchar(' ');
-        putchar('t');
-        putchar('e');
-        putchar('s');
-        putchar('t');
-        putchar('\n');
+        printf("Timeout!\r\n");
+
+        c = (char)bsp_getChar();
+        putchar(c);
 
 
         etimer_restart(&print_et);
     }
 } /* demo_print_et_callback() */
 
+
+/*----------------------------------------------------------------------------*/
+/*    justprint_input_byte()                                                           */
+/*----------------------------------------------------------------------------*/
+void justprint_input_byte(void * chr)
+{
+    char c = *(char*)chr;
+    printf("I got the char: %c\r\n", c);
+}
 
 /** @} */
 /** @} */

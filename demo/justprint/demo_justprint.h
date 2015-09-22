@@ -87,6 +87,7 @@ int8_t demo_justprintInit(void);
 uint8_t demo_justprintConf(s_ns_t* pst_netStack);
 
 void demo_print_et_callback(c_event_t c_event, p_data_t p_data);
+void justprint_input_byte(void * chr);
 
 #endif /* DEMO_COAP_SRV_H_ */
 /** @} */

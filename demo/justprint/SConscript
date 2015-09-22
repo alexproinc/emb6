@@ -1,5 +1,6 @@
 justprint = {
 	'demo' : [
+		'inc/*'
 		'*',
 	],
 	'emb6' : [
