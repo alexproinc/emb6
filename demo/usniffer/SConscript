@@ -1,6 +1,9 @@
 usniffer = {
 	'demo' : [
-		'inc/*'
+		'inc/*',
+		'inc/boards',
+		'vendor//*',
+		'uracoli/*',
 		'*',
 	],
 	'emb6' : [

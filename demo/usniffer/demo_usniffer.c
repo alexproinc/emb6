@@ -62,25 +62,37 @@
 #include "demo_usniffer.h"
 //#include "const.h"
 
-#define     LOGGER_ENABLE        TRUE
+#define     LOGGER_ENABLE        FALSE
 #include    "logger.h"
 
 /*==============================================================================
                           LOCAL VARIABLE DECLARATIONS
  =============================================================================*/
-s_ns_t* pst_ns = NULL;
 struct etimer print_et;
+sniffer_context_t ctx;
+pcap_pool_t PcapPool;
 /*==============================================================================
                                          API FUNCTIONS
  =============================================================================*/
 /*----------------------------------------------------------------------------*/
-/*    demo_usnifferInit()                                                           */
+/*    demo_usnifferInit()                                                     */
 /*----------------------------------------------------------------------------*/
-
 int8_t demo_usniffInit(void)
 {
 
-    LOG_INFO("Starting Sniffer");
+    s_ns_t* pst_ns = NULL;
+    pst_ns = emb6_get();
+
+    if ((pst_ns == NULL) || (pst_ns->inif == NULL))
+        return 0;
+
+    /* init memory locations */
+    memset(&ctx, 0, sizeof(ctx));
+    PcapPool.ridx = 0;
+    PcapPool.widx = 0;
+    ctx.state = IDLE;
+    ctx.cchan = TRX_MIN_CHANNEL;
+    ctx.cmask = TRX_SUPPORTED_CHANNELS;
 
     if ((pst_ns->inif != NULL) &&
         (pst_ns->inif->set_promisc != NULL)) {
@@ -90,23 +102,21 @@ int8_t demo_usniffInit(void)
     if (pst_ns->lmac != NULL) {
         pst_ns->lmac->regcallb(demo_usniffer_input_frame);
     }
-    /*  */
-    //bsp_extIntInit(E_TARGET_RADIO_INT, demo_usniffer_input_frame);
     
-    /*  */
+    /* Register callback for U(S)ART Int */
     bsp_extIntInit(E_TARGET_USART_INT, demo_usniffer_input_byte);
 
-    /*  */
+    /* Register ETimer callback */
     etimer_set(&print_et, 1 * bsp_get(E_BSP_GET_TRES), demo_usniffer_et_callback);
 
+    printf(NL"Sniffer V%s [%s]"NL, VERSION, BOARD_NAME);
 
     return 1;
 } /* demo_usnifferInit() */
 
 /*----------------------------------------------------------------------------*/
-/*    demo_usnifferConf()                                                           */
+/*    demo_usnifferConf()                                                     */
 /*----------------------------------------------------------------------------*/
-
 uint8_t demo_usniffConf(s_ns_t* pst_netStack)
 {
     uint8_t c_ret = 1;
@@ -138,7 +148,6 @@ uint8_t demo_usniffConf(s_ns_t* pst_netStack)
             }
         }
     }
-    pst_ns = pst_netStack;
     return (c_ret);
 } /*  demo_usnifferConf() */
 
@@ -153,6 +162,35 @@ void demo_usniffer_et_callback(c_event_t c_event, p_data_t p_data)
     
     LOG_INFO("Timeout!\r");
 
+    #if 1
+    if ((ctx.state == SNIFF) && (PcapPool.widx != PcapPool.ridx))
+    {
+        uint8_t tmp, len, *p;
+        pcap_packet_t *ppcap = &PcapPool.packet[PcapPool.ridx];
+        
+        /* start frame delimiter */
+        printf("%c", 1);
+
+        len = ppcap->len+1;
+        p = (uint8_t*)ppcap;
+        do
+        {
+            printf("%c", *p);
+            p++;
+            len--;
+        }
+        while(len>0);
+
+        /* end frame delimiter */
+        printf("%c", 4);
+
+        /* mark buffer as processed */
+        ppcap->len = 0;
+        PcapPool.ridx++;
+        PcapPool.ridx &= (MAX_PACKET_BUFFERS-1);
+    }
+    #endif
+
     etimer_restart(&print_et);
     
 } /* demo_usniffer_et_callback() */
@@ -164,14 +202,41 @@ void demo_usniffer_et_callback(c_event_t c_event, p_data_t p_data)
 void demo_usniffer_input_frame(const uint8_t* pc_data, uint8_t c_len,
                                 int8_t status)
 {
-    int i;
+    static pcap_packet_t *ppcap;
+
     LOG_INFO("I've got a frame!\r");
-    for (i=0; i<c_len; i++)
+
+    ppcap = &PcapPool.packet[PcapPool.widx];
+    if (ppcap->len != 0)
     {
-        printf("%d ", *pc_data);
-        pc_data++;
+        /* drop packet, no free buffers*/
+        ppcap = NULL;
+        return;
     }
 
+    ppcap->ts.time_usec = bsp_get(E_BSP_GET_TICK); //TRX_TSTAMP_REG; // bsp_get(E_BSP_GET_TICK)
+    ppcap->ts.time_sec = bsp_get(E_BSP_GET_SEC); //systime; bsp_get(E_BSP_GET_TRES)
+
+
+    /* Upload frame at TRX_END IRQ */
+    if (ppcap != NULL)
+    {
+        //ed = trx_reg_read(RG_PHY_ED_LEVEL);
+        //flen = trx_frame_read_crc(&ppcap->frame[0], MAX_FRAME_SIZE, &crc_ok);
+        //trx_sram_read(flen, 1, &lqi);
+        memcpy(&ppcap->frame[0], pc_data, c_len);
+        if (ctx.state == SCAN)
+        {
+            //scan_update_frame(c_len, crc_ok, lqi, ed, ppcap->frame);
+        }
+        if (ctx.state == SNIFF)
+        {
+            ppcap->len = c_len + sizeof(time_stamp_t);
+            PcapPool.widx++;
+            PcapPool.widx &= (MAX_PACKET_BUFFERS-1);
+        }
+    }
+    ctx.frames++;
 
 } /* demo_usniffer_input_frame() */
 
@@ -181,9 +246,86 @@ void demo_usniffer_input_frame(const uint8_t* pc_data, uint8_t c_len,
 /*----------------------------------------------------------------------------*/
 void demo_usniffer_input_byte(void * chr)
 {
-    char c = *(char*)chr;
-    printf("\rI've got the char: %c\r\n", c);
+    //char c = *(char*)chr;
+    demo_usniffProcessInput(chr);
 } /* demo_usniffer_input_byte() */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * @brief Start a new operating state.
+ */
+void demo_usniffer_start(sniffer_state_t state)
+{
+    switch (state)
+    {
+        case IDLE:
+            //trx_reg_write(RG_TRX_STATE, CMD_FORCE_TRX_OFF);
+            ctx.state = IDLE;
+            //LED_SET_VALUE(0);
+            break;
+        case SCAN:
+            ctx.state = SCAN;
+            //scan_init();
+            break;
+        case SNIFF:
+            //trx_reg_write(RG_TRX_STATE, CMD_RX_ON);
+            ctx.state = SNIFF;
+            break;
+
+        default:
+            break;
+    }
+}
+
+/**
+ * @brief Halt current operation and enter state IDLE.
+ */
+void demo_usniffer_stop(void)
+{
+sniffer_state_t curr_state;
+
+    //trx_reg_write(RG_TRX_STATE, CMD_FORCE_TRX_OFF);
+    cli();
+    curr_state = ctx.state;
+    ctx.state = IDLE;
+    sei();
+
+    switch(curr_state)
+    {
+        case SCAN:
+            ctx.cchan = TRX_MIN_CHANNEL;
+            //ctx.thdl = timer_stop(ctx.thdl);
+            break;
+        case SNIFF:
+        case IDLE:
+            break;
+        default:
+            printf("Unknown state %d"NL,ctx.state);
+            break;
+
+    }
+}
+
 
 /** @} */
 /** @} */
