@@ -168,11 +168,6 @@
 #define RF212_CONF_AUTOACK                         1    //!< Autoack setting ignored in non-extended mode
 #endif
 
-
-#if RF212_CONF_AUTOACK
-//static bool is_promiscuous;                    //!< We need to turn off autoack in promiscuous mode
-#endif
-
 /*! RF212_CONF_AUTORETRIES is 1 plus the number written to the hardware.
  Valid range 1-16, zero disables extended mode. */
 #ifndef RF212_CONF_AUTORETRIES
@@ -319,10 +314,10 @@ typedef enum E_RF212_SM_STATUS{
  *  \see _rf212_fRead
  */
 typedef struct {
-    uint8_t length;                           /**< Length of frame. */
-    uint8_t data[ MAX_FRAME_LENGTH ];         /**< Actual frame data. */
-    uint8_t lqi;                              /**< LQI value for received frame. */
-    bool crc;                                 /**< Flag - did CRC pass for received frame? */
+    uint8_t 	length;                   /**< Length of frame. */
+    uint8_t 	data[ MAX_FRAME_LENGTH ]; /**< Actual frame data. */
+    uint8_t 	lqi;                      /**< LQI value for received frame. */
+    bool 		crc;                      /**< Flag - did CRC pass for received frame? */
 }st_rxframe_t ;
 
 #endif /* AT86RF212_H_ */

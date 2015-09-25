@@ -230,7 +230,8 @@ void bsp_spiFrameRead(void * p_spi,uint8_t c_addr, uint8_t * pc_data, uint16_t *
 
     hal_spiWrite(&c_addr, 1);
     hal_spiRead((uint8_t *)pi_len, 1);
-    hal_spiRead(pc_data, *pi_len + 1);
+    hal_spiRead(pc_data, *pi_len + 3);
+    *pi_len += 2;
     hal_spiSlaveSel(p_spi,false);
 }
 

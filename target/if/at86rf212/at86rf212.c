@@ -230,14 +230,15 @@ static void _rf212_fRead(st_rxframe_t * ps_rxframe)
      * With a low interrupt latency overwrites should never occur.
      */
     bsp_spiFrameRead(p_spi, 0x20, ps_rxframe->data, &c_flen);
-    ps_rxframe->length = c_flen;
-    /*Read LQI value for this frame.*/
-    ps_rxframe->lqi = ps_rxframe->data[c_flen + 1];
+	ps_rxframe->length = c_flen;
+	/*Read LQI value for this frame.*/
+	ps_rxframe->lqi = ps_rxframe->data[c_flen + 1];
 
-    /* If crc was calculated set crc field in rx_frame_t accordingly.
-     * Else show the crc has passed the hardware check.
-     */
-    ps_rxframe->crc   = TRUE;
+	/* If crc was calculated set crc field in rx_frame_t accordingly.
+	 * Else show the crc has passed the hardware check.
+	 */
+	ps_rxframe->crc   = TRUE;
+
     /*Check for correct frame length. Bypassing this test can result in a buffer overrun! */
     if ( (c_flen <= MIN_FRAME_LENGTH) || (c_flen > MAX_FRAME_LENGTH)) {
         /* Length test failed */
@@ -1009,6 +1010,7 @@ static void _rf212_promisc(uint8_t value)
         _rf212_setPanAddr(0x0000, 0, ac_addr);
         _spiBitWrite(p_spi, SR_AACK_PROM_MODE, 1);
         _spiBitWrite(p_spi, SR_AACK_DIS_ACK, 1);
+        _spiBitWrite(p_spi, RG_TRX_CTRL_1, SR_TX_AUTO_CRC_ON, 0);
     }
     else {
         _spiBitWrite(p_spi, SR_AACK_PROM_MODE, 0);
@@ -1297,16 +1299,8 @@ void _isr_callback(void * p_input)
     c_int_src = bsp_spiRegRead(p_spi, RF212_READ_COMMAND | RG_IRQ_STATUS);
     /* Note: all IRQ are not always automatically disabled when running in ISR */
     /*Handle the incomming interrupt. Prioritized.*/
-    //    printf("Int source = %d\n\r",c_int_src);
-    if ((c_int_src & RX_START_MASK)){
-#if !RF212_CONF_AUTOACK
-        bsp_spiTxRx(p_spi, RF212_READ_COMMAND | SR_RSSI,  &c_last_rssi);
-        c_last_rssi *= 3;
-        //        c_last_rssi = 3 * bsp_spiSubRead(SR_RSSI);
-#endif
-    } else if (c_int_src & TRX_END_MASK){
+    if (c_int_src & TRX_END_MASK){
         c_state = bsp_spiBitRead(p_spi, RF212_READ_COMMAND | RG_TRX_STATUS, SR_TRX_STATUS);
-        //        c_state = bsp_spiSubRead(SR_TRX_STATUS);
         if( (c_state == BUSY_RX_AACK) || \
                 (c_state == RX_ON) ||          \
                 (c_state == BUSY_RX) ||      \

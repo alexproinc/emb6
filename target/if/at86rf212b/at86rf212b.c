@@ -1404,16 +1404,8 @@ void _isr_callback(void * p_input)
     c_int_src = bsp_spiRegRead(p_spi, RF212B_READ_COMMAND | RG_IRQ_STATUS);
     /* Note: all IRQ are not always automatically disabled when running in ISR */
     /*Handle the incomming interrupt. Prioritized.*/
-//    printf("Int source = %d\n\r",c_int_src);
-    if ((c_int_src & RX_START_MASK)){
-#if !RF212B_CONF_AUTOACK
-        bsp_spiTxRx(p_spi, RF212B_READ_COMMAND | SR_RSSI,  &c_last_rssi);
-        c_last_rssi *= 3;
-//        c_last_rssi = 3 * bsp_spiSubRead(SR_RSSI);
-#endif
-    } else if (c_int_src & TRX_END_MASK){
+    if (c_int_src & TRX_END_MASK){
         c_state = bsp_spiBitRead(p_spi, RF212B_READ_COMMAND | RG_TRX_STATUS, SR_TRX_STATUS);
-//        c_state = bsp_spiSubRead(SR_TRX_STATUS);
         if( (c_state == BUSY_RX_AACK) || \
             (c_state == RX_ON) ||          \
             (c_state == BUSY_RX) ||      \
@@ -1425,7 +1417,6 @@ void _isr_callback(void * p_input)
 #ifdef RF212B_MIN_RX_POWER
 #if RF212B_CONF_AUTOACK
             c_last_rssi = bsp_spiRegRead(p_spi, RF212B_READ_COMMAND | RG_PHY_ED_LEVEL);
-//            c_last_rssi=bsp_spiRead(RG_PHY_ED_LEVEL);
 #endif
             if (c_last_rssi >= RF212B_MIN_RX_POWER) {
 #endif
