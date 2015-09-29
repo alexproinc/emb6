@@ -1,7 +1,7 @@
 .metadata/
 build/
 bin/
-.sconf_temp
+.sconf_temp/
 .project
 .cproject
 _*/
