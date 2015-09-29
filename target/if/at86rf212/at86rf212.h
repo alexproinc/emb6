@@ -129,12 +129,12 @@
 
 
 
-#define    OQPSK_100_SIN_RC_100                    ( 0x08 )   //IEEE 802.15.4-2003/2006:  channel page 0, channel 0
-#define    BPSK_20                                    ( 0x00 )   //IEEE 802.15.4-2006:        channel page 2, channel 0
-#define CHANNEL_802_15_4                          ( 0x00 )   //Define default working channel
+#define OQPSK_100_SIN_RC_100                    ( 0x08 )   //IEEE 802.15.4-2003/2006:  channel page 0, channel 0
+#define BPSK_20                                 ( 0x00 )   //IEEE 802.15.4-2006:        channel page 2, channel 0
+#define CHANNEL_802_15_4                        ( 0x00 )   //Define default working channel
 
 #define TXPWR_DBM                                 0
-#define TXPWR_LIST_LEN                             17
+#define TXPWR_LIST_LEN                            17
 
 
 #if (MODULATION == MODULATION_QPSK100)
