@@ -120,9 +120,6 @@ typedef enum E_BSP_LED_COLOR
     E_BSP_LED_GREEN = 0x02
 } en_bspLedColor_t;
 
-
-
-
 //! Define the action the function bsp_wdt() must provide
 typedef enum E_BSP_WDT_ACTION
 {
@@ -159,6 +156,35 @@ typedef enum E_BSP_GET_TYPE
     //! Ticks in one seconds (time resolution)
     E_BSP_GET_TRES
 }en_bspParams_t;
+
+/*! \enum en_bspRadioCtl_t
+    \brief Return code of IOCtl command name
+*/
+typedef enum E_BSP_RADIO_CTL
+{
+    E_RADIO_MOD,
+    E_RADIO_RX_SENS,
+    E_RADIO_TX_PWR,
+    E_RADIO_PROMISC,
+    E_RADIO_CHANNEL
+} en_bspRadioCtl_t;
+
+typedef enum E_BSP_RMODE
+{
+    E_BSP_RMODE_BPSK20   = 0,
+    E_BSP_RMODE_BPSK40,
+    E_BSP_RMODE_QPSK100,
+    E_BSP_RMODE_QPSK200,
+    E_BSP_RMODE_QPSK250,
+    E_BSP_RMODE_QPSK400,
+    E_BSP_RMODE_QPSK500,
+    E_BSP_RMODE_QPSK1000,
+    E_BSP_RMODE_QPSK2000,
+    E_BSP_RMODE_LAST     = 0x7E,
+    E_BSP_RMODE_VOID     = 0x7F
+}e_bsp_rmode_t;
+
+
 
 /*==============================================================================
                          STRUCTURES AND OTHER TYPEDEFS
