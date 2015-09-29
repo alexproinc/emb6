@@ -65,9 +65,9 @@
 /*==============================================================================
                                  INCLUDE FILES
  =============================================================================*/
+#include "bsp.h"
 #include "emb6.h"
 #include "board_conf.h"
-#include "bsp.h"
 #include "etimer.h"
 
 #if DEMO_USE_UDP
