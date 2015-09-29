@@ -320,6 +320,19 @@ typedef struct {
     bool 		crc;                      /**< Flag - did CRC pass for received frame? */
 }st_rxframe_t ;
 
+
+int8_t ac_rf212mode[][3] = {
+    {E_BSP_RMODE_BPSK20,    0x00,   -100},  // True value
+    {E_BSP_RMODE_BPSK40,    0x04,   -100},
+    {E_BSP_RMODE_QPSK100,   0x08,   -98 },  // True value
+    {E_BSP_RMODE_QPSK200,   0x09,   -100},
+    {E_BSP_RMODE_QPSK250,   0x0C,   -100},
+    {E_BSP_RMODE_QPSK400,   0x0B,   -100},
+    {E_BSP_RMODE_QPSK500,   0x0D,   -100},
+    {E_BSP_RMODE_QPSK1000,  0x0E,   -100},
+    {E_BSP_RMODE_LAST,      0x00,   -100}
+};
+
 #endif /* AT86RF212_H_ */
 /** @} */
 /** @} */

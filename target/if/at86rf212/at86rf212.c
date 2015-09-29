@@ -162,7 +162,9 @@ static  void                    _rf212_setSensitivity(int8_t sens);
 static  int8_t                  _rf212_getSensitivity(void);
 static  int8_t                  _rf212_getRSSI(void);
 static  void                    _rf212_wReset(void);
+static  uint8_t                 _rf212_chmode(e_bsp_rmode_t e_mode);
 static  void                    _rf212_promisc(uint8_t value);
+static  int8_t                  _rf212_ioctl(en_bspRadioCtl_t param, const void *value);
 static  int8_t                  _rf212_send(const void *pr_payload, uint8_t c_len);
 static  int8_t                  _rf212_init(s_ns_t* p_netStack);
 static  void                    _spiBitWrite(void * p_spi, uint8_t c_addr,
@@ -1001,6 +1003,7 @@ void _rf212_wReset(void)
 
 } /* _rf212_wReset() */
 
+/*---------------------------------------------------------------------------*/
 static void _rf212_promisc(uint8_t value)
 {
     uint8_t ac_addr[8];
@@ -1015,7 +1018,76 @@ static void _rf212_promisc(uint8_t value)
         _spiBitWrite(p_spi, SR_AACK_PROM_MODE, 0);
         _spiBitWrite(p_spi, SR_AACK_DIS_ACK, 0);
     }
-}
+} /* _rf212_promisc() */
+
+
+/*---------------------------------------------------------------------------*/
+static uint8_t _rf212_chmode(e_bsp_rmode_t e_mode)
+{
+    uint8_t i;
+    uint8_t c_ret = 0;
+    for (i = 0; i < E_BSP_RMODE_SIZE; ++i)
+    {
+        if (ac_rf212mode[i][0] == E_BSP_RMODE_LAST)
+        {
+            break;
+        }
+        else if (ac_rf212mode[i][0] == e_mode)
+        {
+            uint8_t regval = ac_rf212mode[i][1];
+
+            /* Force transition to TRX_OFF */
+            //_spiBitWrite(p_spi, RG_TRX_STATE, SR_TRX_CMD, CMD_FORCE_TRX_OFF);
+            //bsp_delay_us(E_TIME_P_ON_TO_TRX_OFF);
+
+            _rf212_intOFF();
+
+            regval |= bsp_spiRegRead(p_spi, RF212_READ_COMMAND | RG_TRX_CTRL_2) & 0xf0 ;
+            bsp_spiRegWrite(p_spi, RF212_WRITE_COMMAND | RG_TRX_CTRL_2, regval);
+            c_rssi_base_val = ac_rf212mode[i][2];
+            mac_phy_config.modulation = e_mode;
+
+            _rf212_intON();
+
+            c_ret = 1;
+            break;
+        }
+    }
+    return c_ret;
+} /* _rf212_chmode() */
+
+/*---------------------------------------------------------------------------*/
+static int8_t _rf212_ioctl(en_bspRadioCtl_t param, const void *value)
+{
+    int8_t retval = 0;
+    switch(param)
+    {
+        case E_RADIO_MOD:
+            retval = _rf212_chmode(*(int*)&value);
+            break;
+        case E_RADIO_RX_SENS:
+            _rf212_setSensitivity(*(int8_t*)&value);
+            retval = 1;
+            break;
+        case E_RADIO_TX_PWR:
+            _rf212_setTxPower(*(int8_t*)&value);
+            retval = 1;
+            break;
+        case E_RADIO_PROMISC:
+            _rf212_promisc(*(uint8_t*)&value);
+            retval = 1;
+            break;
+        case E_RADIO_CHANNEL:
+            _rf212_setChannel(*(uint8_t*)&value);
+            retval = 1;
+            break;
+        default:
+            break;
+    }
+
+    return retval;
+} /* _rf212_ioctl() */
+
 
 /*---------------------------------------------------------------------------*/
 static int8_t _rf212_send(const void *pr_payload, uint8_t c_len)
