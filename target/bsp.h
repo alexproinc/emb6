@@ -80,13 +80,20 @@
 /*==============================================================================
                                      MACROS
 ==============================================================================*/
-#define LEDS_SUPPORTED                3
+#define LEDS_SUPPORTED              3
 
 #define BSP_PIN_DIROUTPUT           TRUE
 #define BSP_PIN_DIRINPUT            FALSE
 
 #define BSP_PIN_UP                  TRUE
 #define BSP_PIN_DOWN                FALSE
+
+/** defines for the modulation type for RF transceiver */
+// We put it here for backward compatibility
+#define MODULATION_QPSK100          0
+#define MODULATION_BPSK20           1
+
+#define E_BSP_RMODE_SIZE            9
 
 /*==============================================================================
                                      ENUMS
