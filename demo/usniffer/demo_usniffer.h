@@ -64,7 +64,6 @@
 #include "etimer.h"
 
 #include "transceiver.h"
-#include "ioutil.h"
 #include "const.h"
 
 #ifndef DEMO_USNIFFER_H_
