@@ -188,8 +188,7 @@ const s_nsIf_t rf212_driver = {
         _rf212_getRSSI,
         NULL,
         NULL,
-        _rf212_promisc,
-        _rf212_setChannel
+        _rf212_ioctl
 };
 /*==============================================================================
                                 LOCAL FUNCTIONS

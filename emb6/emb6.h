@@ -401,11 +401,8 @@ typedef const struct netstack_interface {
     /** Set RF Switch*/
     void (* ant_rf_switch)(uint8_t value);
 
-    /** Set promiscuous mode */
-    void (* set_promisc)(uint8_t c_on_off);
-
-    /** Set promiscuous mode */
-    void (* set_channel)(uint8_t c);
+    /** IOCtl handler */
+    void (* ioctl)(int param, const void *value);
 
 }s_nsIf_t;
 
