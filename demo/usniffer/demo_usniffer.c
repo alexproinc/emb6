@@ -95,8 +95,8 @@ int8_t demo_usniffInit(void)
     ctx.cmask = TRX_SUPPORTED_CHANNELS;
 
     if ((pst_ns->inif != NULL) &&
-        (pst_ns->inif->set_promisc != NULL)) {
-        pst_ns->inif->set_promisc(1);
+        (pst_ns->inif->ioctl != NULL)) {
+        pst_ns->inif->ioctl(E_RADIO_PROMISC, 1);
     }
 
     if (pst_ns->lmac != NULL) {
@@ -107,7 +107,7 @@ int8_t demo_usniffInit(void)
     bsp_extIntInit(E_TARGET_USART_INT, demo_usniffer_input_byte);
 
     /* Register ETimer callback */
-    etimer_set(&print_et, 1 * bsp_get(E_BSP_GET_TRES), demo_usniffer_et_callback);
+    etimer_set(&print_et, 0.3 * bsp_get(E_BSP_GET_TRES), demo_usniffer_et_callback);
 
     printf(NL"Sniffer V%s [%s]"NL, VERSION, BOARD_NAME);
 
@@ -204,8 +204,6 @@ void demo_usniffer_input_frame(const uint8_t* pc_data, uint8_t c_len,
 {
     static pcap_packet_t *ppcap;
 
-    LOG_INFO("I've got a frame!\r");
-
     ppcap = &PcapPool.packet[PcapPool.widx];
     if (ppcap->len != 0)
     {
@@ -214,21 +212,22 @@ void demo_usniffer_input_frame(const uint8_t* pc_data, uint8_t c_len,
         return;
     }
 
-    ppcap->ts.time_usec = bsp_get(E_BSP_GET_TICK); //TRX_TSTAMP_REG; // bsp_get(E_BSP_GET_TICK)
-    ppcap->ts.time_sec = bsp_get(E_BSP_GET_SEC); //systime; bsp_get(E_BSP_GET_TRES)
+    ppcap->ts.time_usec = TRX_TSTAMP_REG; // temporary
+    ppcap->ts.time_sec = bsp_get(E_BSP_GET_TICK);
 
+    memcpy(&ppcap->frame[0], pc_data, c_len);
+    if (ctx.state == SNIFF)
+    {
+        ppcap->len = c_len + sizeof(time_stamp_t);
+        PcapPool.widx++;
+        PcapPool.widx &= (MAX_PACKET_BUFFERS-1);
+    }
 
+    #if 0
     /* Upload frame at TRX_END IRQ */
     if (ppcap != NULL)
     {
-        //ed = trx_reg_read(RG_PHY_ED_LEVEL);
-        //flen = trx_frame_read_crc(&ppcap->frame[0], MAX_FRAME_SIZE, &crc_ok);
-        //trx_sram_read(flen, 1, &lqi);
         memcpy(&ppcap->frame[0], pc_data, c_len);
-        if (ctx.state == SCAN)
-        {
-            //scan_update_frame(c_len, crc_ok, lqi, ed, ppcap->frame);
-        }
         if (ctx.state == SNIFF)
         {
             ppcap->len = c_len + sizeof(time_stamp_t);
@@ -236,6 +235,7 @@ void demo_usniffer_input_frame(const uint8_t* pc_data, uint8_t c_len,
             PcapPool.widx &= (MAX_PACKET_BUFFERS-1);
         }
     }
+    #endif
     ctx.frames++;
 
 } /* demo_usniffer_input_frame() */
@@ -246,29 +246,9 @@ void demo_usniffer_input_frame(const uint8_t* pc_data, uint8_t c_len,
 /*----------------------------------------------------------------------------*/
 void demo_usniffer_input_byte(void * chr)
 {
-    //char c = *(char*)chr;
+    //--- char c = *(char*)chr;
     demo_usniffProcessInput(chr);
 } /* demo_usniffer_input_byte() */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 /**
@@ -304,11 +284,10 @@ void demo_usniffer_stop(void)
 {
 sniffer_state_t curr_state;
 
-    //trx_reg_write(RG_TRX_STATE, CMD_FORCE_TRX_OFF);
-    cli();
+    //cli();
     curr_state = ctx.state;
     ctx.state = IDLE;
-    sei();
+    //sei();
 
     switch(curr_state)
     {
